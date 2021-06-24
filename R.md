@@ -562,6 +562,8 @@ legend(locator(1), legend=c("2015년", "2016년"), lty=1,
 
 <img src="https://user-images.githubusercontent.com/58063806/123104598-0d558200-d472-11eb-8166-6acc8c558f3a.png" width=50% />
 
+**bar**
+
 ```python
 # 각 행별로 남자, 여자 열의 값을 합함
 rowSums(data[, c("남자", "여자")], na.rm=TRUE)
@@ -589,12 +591,16 @@ barplot(as.matrix(data1[1:6, 2:3]), legend=c("남", "여"),
 
 <img src="https://user-images.githubusercontent.com/58063806/123108440-64a92180-d475-11eb-8fb8-9f66892fb8f0.png" width=50% />
 
+**histogram**
+
 ```R
 x <- c(23, 33, 32, 45, 37, 28, 15, 35, 43, 27, 46, 33, 38, 46, 50 ,25)
 hist(x, main="연령분포", xlim=c(15, 50), col="yellow")
 ```
 
 <img src="https://user-images.githubusercontent.com/58063806/123109486-3f68e300-d476-11eb-8fbf-a093dd5b2a80.png" width=50% />
+
+**boxplot**
 
 ```R
 #        월별 출생 사망
@@ -610,3 +616,121 @@ boxplot(data$출생, data$사망, names=c("출생", "사망"),
 ```
 
 <img src="https://user-images.githubusercontent.com/58063806/123111254-bc488c80-d477-11eb-90f5-ff9a1da269d8.png" width=50% />
+
+
+
+#### ggplot
+
+```R
+#   mat eng avg irum
+# 1  55  65  53   김
+# 2  75 100  70   이
+# 3  80  45  83   박
+# 4  65  50  70   최
+# 5  90  75  93   문
+# 6 100  90  95   윤
+# 7  70  90  75   손
+# 8  85  65  80   정
+
+dev.new(width=10, height=10, unit="in")
+ggplot(df, aes(mat, avg))+xlab("score")+ylab("avg_score")+
+  geom_line(color="red")+geom_point(color="yellow")+
+  geom_line(aes(eng, avg), color="darkgreen")+
+  geom_point(aes(eng, avg), color="blue")
+```
+
+- ggplot은 레이어를 추가하면 이후 레이어에 상속
+  - 원본 ggplot이 아닌 이후의 layer에서 만들어진 내용은 상속이 안됨
+
+<img src="https://user-images.githubusercontent.com/58063806/123208927-dd05f600-d4fa-11eb-86c3-951ec93ca6ed.png" width=60% />
+
+```R
+#     차종   선별   출발지   도착지   거리 		총운행횟수 총이용인원 이용율
+# 1   우등   88선     광주     울산 327.8        412       7283   63.1
+# 2   고속   88선     광주     울산 327.8        145       3050   46.7
+# 3   우등   88선     광주 울산신복 327.8        164        545   11.9
+# 4   고속   88선     광주 울산신복 327.8         70        311    9.9
+# 5   우등   88선     광주   동대구 219.3       1369      21873   57.1
+# ...
+dev.new(width=10, height=10, unit="in")
+ggplot(datainfo, aes(총운행횟수, 이용율))+geom_point(aes(color=선별, size=거리))
+```
+
+- 그룹별로 시각화
+- 자동적으로 범례 생성됨
+
+<img src="https://user-images.githubusercontent.com/58063806/123209401-7f25de00-d4fb-11eb-8b38-ae4596876bdd.png" width=60%/>
+
+```R
+dev.new(width=10, height=10, unit="in")
+ggplot(datainfo, aes(선별, 총이용인원))+geom_bar(stat="identity", fill="orange")
+```
+
+- geom_bar의 stat요소는 기본적으로 stat_bin (개수 카운트)으로 설정
+- 항목의 계산을 위해서는 stat="identity"로 설정
+- fill : 막대 그래프 내부 색, color : 막대 그래프 테두리 색 
+
+<img src="https://user-images.githubusercontent.com/58063806/123209585-cd3ae180-d4fb-11eb-8533-79d42de1044d.png" width=60%/>
+
+```R
+meandf <- as.data.frame(with(datainfo, tapply(이용율, 선별, mean, na.rm=TRUE)))
+meandf$노선 <- rownames(meandf)
+names(meandf) <- c("이용율", "노선")
+meandf
+#          이용율   노선
+# 88선   44.66667   88선 
+# 경부선 48.20476 경부선
+# 경인선 54.91600 경인선
+# 구마선 46.95000 구마선
+# ...
+dev.new(width=10, height=10, unit="in")
+ggplot(meandf, aes(노선, 이용율))+geom_bar(stat="identity", aes(fill=노선))
+```
+
+- 노선에 따른 평균이용율
+
+<img src="https://user-images.githubusercontent.com/58063806/123212547-ea71af00-d4ff-11eb-9b3b-d37d0011451c.png" width=50% />
+
+```R
+meandf1 <- as.data.frame(with(datainfo, aggregate(이용율, list(선별, 차종), 
+                                                    mean, na.rm=TRUE)))
+colnames(meandf1) <- c("선별", "차종", "평균이용율")
+meandf1
+#      선별 차종 평균이용율
+# 1    88선 고속   37.70000
+# 2  경부선 고속   48.91930
+# 3  경인선 고속   61.19091
+# ...
+# 9    88선 우등   49.10000
+# 10 경부선 우등   47.35625
+# 11 경인선 우등   49.98571
+# ...
+dev.new(width=10, height=10, unit="in")
+ggplot(meandf1, aes(선별, 평균이용율))+geom_bar(stat="identity", aes(fill=차종))
+```
+
+- aggregate : 그룹핑 기준이 되는 컬럼이 여러개 일때 list의 형태로 전달해서 사용
+- 노선과 차종에 따른 평균이용율
+
+<img src="https://user-images.githubusercontent.com/58063806/123213210-b2b73700-d500-11eb-87dc-0897b3763231.png" width=60%/>
+
+```R
+ggplot(meandf1, aes(선별, 평균이용율))+
+geom_bar(stat="identity", aes(fill=차종), position="fill")
+```
+
+- 100% 기준으로 각 노선별 차종에 따른 평균이용율 비교
+  - position="fill"
+
+<img src="https://user-images.githubusercontent.com/58063806/123213310-d1b5c900-d500-11eb-9b91-5fe6a5706431.png" width=60% />
+
+```R
+ggplot(meandf1, aes(선별, 평균이용율))+
+geom_bar(stat="identity", aes(fill=차종), position="dodge")+
+geom_text(aes(y=평균이용율, label=평균이용율), color="black", size=2)
+```
+
+- 각 노선별 차종에 따른 평균이용율 비교 (차종에 따라 나누어서 시각화)
+  - position="dodge"
+
+<img src="https://user-images.githubusercontent.com/58063806/123213503-09bd0c00-d501-11eb-9555-c05876338ca5.png" width=60% />
