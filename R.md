@@ -1,12 +1,15 @@
 ## R
 
-#### 변수에 데이터 할당
+#### 벡터
 
 ```R
 val <- c(1, 2, 3, 4, 5)
 val <- c(1:5)
 # 1 2 3 4 5
 
+# 형식을 출력
+class(val)
+# "numeric"
 
 val <- seq(0, 100, 20)
 # 0  20  40  60  80 100
@@ -28,6 +31,25 @@ a <- vector(mode="numeric", length=20)
 # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 a <- vector(mode="character", length=10)
 # "" "" "" "" "" "" "" "" "" ""
+
+# 벡터간의 연산을 할 때 배수관계에 있으면 경고 없이 순차적으로 연산
+score1 <- c(100, 200, 300, 400)
+score2 <- c(90, 91)
+sum_score <- score1 + score2
+sum_score
+# 190 291 390 491
+
+# 배수 관계가 아니면 경고메시지가 뜨지만 순차적으로 연산은 진행
+score1 <- c(100, 200, 300, 400, 500)
+score2 <- c(90, 91)
+sum_score <- score1 + score2
+sum_score
+# 190 291 390 491 590
+
+n <- 20
+# %in%으로 포함관계를 확인가능
+n %in% c(10, 20, 30)
+# TRUE
 ```
 
 #### 범주형 변수 생성
@@ -93,7 +115,7 @@ myfavorit$mysong <- "hello"
 
 
 
-#### 매트릭스
+#### 매트릭스(행렬)
 
 - 다차원 배열을 생성
 
@@ -156,6 +178,24 @@ dimnames(info) <- list(c("1번", "2번", "3번", "4번", "5번", "6번"), c("키
  #6번 "185cm" "68kg" "남"
 ```
 
+#### 배열
+
+- 다차원의 데이터를 생성 가능
+
+```R
+a_data <- array(c(31:36), dim=c(2, 2, 2))
+# , , 1
+#      [,1] [,2]
+# [1,]   31   33
+# [2,]   32   34
+#
+# , , 2
+#
+#      [,1] [,2]
+# [1,]   35   31
+# [2,]   36   32
+```
+
 
 
 #### 데이터프레임
@@ -209,10 +249,36 @@ rbind(pinfo, otherinfo)
 # 7 윤준영     충북   45   여
 ```
 
-- cbind : 열 기준 병합 (열 추가)
-  - axis=0
 - rbind : 행 기준 병합 (행 추가)
+
   - axis=1
+
+- cbind : 열 기준 병합 (열 추가)
+
+  - axis=0
+  - cbind는 겹치는 column의 값이 서로 달라도 그냥 병합됨
+
+- EX)
+
+- ```R
+  stu1
+  #   no midterm
+  # 1  1     100
+  # 2  2      90
+  # 3  3      80
+  
+  stu2
+  #   no quiz
+  # 1  1   99
+  # 2  4   88
+  # 3  5   77
+  
+  cbind(stu1, stu3)
+  #   no midterm no quiz
+  # 1  1     100  1   99
+  # 2  2      90  4   88
+  # 3  3      80  5   77
+  ```
 
 ```R
 pinfo
@@ -283,6 +349,36 @@ rownames(data1) <- c("가", "나", "다", "라", "마")
 
 - subset : 데이터프레임에서 필요한 부분만 추출
   - -가 앞에 붙으면 그 열을 제외
+
+#### 정렬
+
+- order를 사용해서 특정 컬럼값을 기준으로 정렬이 가능
+
+```R
+OrangeT1 <- Orange[Orange$circumference < 50, ]
+#    Tree age circumference
+# 1     1 118            30
+# 8     2 118            33
+# 15    3 118            30
+# 22    4 118            32
+# 29    5 118            30
+# 30    5 484            49
+
+# circumference기준 오름차순 정렬
+OrangeT1[order(OrangeT1$circumference), ]
+#    Tree age circumference
+# 1     1 118            30
+# 15    3 118            30
+# 29    5 118            30
+# 22    4 118            32
+# 8     2 118            33
+# 30    5 484            49
+
+# circumference기준 내림차순 정렬
+OrangeT1[order(-OrangeT1$circumference), ]
+```
+
+
 
 #### 조건문
 
@@ -385,6 +481,19 @@ tapply(dflist$나이, dflist$성별, mean, simplify=FALSE)
 # [1] 31.5
 ```
 
+**aggregate**
+
+```R
+# Orange 데이터프레임에서 Tree 컬럼 값으로 그룹핑하고 circumference 값의 평균을 구함함
+aggregate(circumference ~ Tree, Orange, mean)
+#   Tree circumference
+# 1    3      94.00000
+# 2    1      99.57143
+# 3    5     111.14286
+# 4    2     135.28571
+# 5    4     139.28571
+```
+
 **사용자정의 함수**
 
 ```python
@@ -421,9 +530,18 @@ source("파일 경로")
 
 
 
-#### 파일 불러오기
+#### 데이터 조작방법
+
+**데이터 load**
 
 ```R
+# stringsAsFactors - 문자 형식을 범주형 데이터로 
+sample <- read.csv("./data/sample.csv", header=F, fileEncoding="EUC-KR", stringsAsFactors=TRUE)
+
+# 빅데이터를 load하는 모듈
+library(data.table)
+nhis_bigdata = fread("./data/NHIS_OPEN_GJ_BIGDATA_UTF-8.csv", encoding="UTF-8")
+
 scan("파일명", what="자료형", sep="seperator")
 
 # 다음과 같이 사용하면 공백이 입력되기 전까지 변수를 입력받음
@@ -465,7 +583,33 @@ df
 
 - readClipboard : 클립보드에 있는 데이터 확인
 
+**데이터 구조 파악**
 
+```R
+Orange
+#    Tree  age circumference
+# 1     1  118            30
+# 2     1  484            58
+# 3     1  664            87
+# 4     1 1004           115
+# 5     1 1231           120
+# 6     1 1372           142
+# ...
+
+str(Orange)
+```
+
+<img src="https://user-images.githubusercontent.com/58063806/125037448-1e87cb00-e0cf-11eb-8896-43cb03379d27.png" width=100% />
+
+```r
+summary(Orange)
+```
+
+- min, 1 ~ 3분위 수, 평균, max 등 각 컬럼별 요약정보를 볼 수 있음
+  - 범주형 변수는 각 범주에 해당되는 행의 개수를 알 수 있음음
+  - pandas의 describe와 유사
+
+<img src="https://user-images.githubusercontent.com/58063806/125037565-424b1100-e0cf-11eb-986a-7375a0a63b79.png" width=40% />
 
 #### 그래프
 
