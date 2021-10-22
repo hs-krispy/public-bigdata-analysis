@@ -99,14 +99,15 @@ def association_rules(data):
     # 근접 중심성 계산 & 노드 크기 설정
     cls = nx.closeness_centrality(G)
     nsize = np.array([v for v in cls.values()])
-    nsize = 7000 * (nsize - min(nsize)) / (max(nsize) - min(nsize))
+    nsize = 7000 * (nsize / max(nsize))
+    fsize = 35 * (nsize / max(nsize))
 
-    pos = nx.spring_layout(G)
+    pos = nx.spring_layout(G, k=0.3)
     nx.draw_networkx(G, font_family="Malgun Gothic", node_color=list(cls.values()), cmap=plt.cm.YlOrRd,
                      node_size=nsize, pos=pos, alpha=0.85, width=1.5, edge_color="black", with_labels=False)
     # text 크기 조정
     for idx, (node, (x, y)) in enumerate(pos.items()):
-        plt.text(x, y, node, fontsize=(list(cls.values())[idx] + 0.3) * 30, color="black", ha='center', va='center')
+        plt.text(x, y, node, fontsize=fsize[idx], color="black", ha='center', va='center')
     plt.axis("off")
     plt.tight_layout()
     plt.show()
