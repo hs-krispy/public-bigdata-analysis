@@ -17,24 +17,14 @@
 #### K-L divergence (쿨백-라이블러 발산)
 
 - 두 확률 분포를 비교
+
 - 확률분포 P가 있을 때, 샘플링 과정에서 그 분포를 근사적으로 표현하는 확률분포 Q를 P 대신 사용할 경우 엔트로피 변화를 의미 
 
-$$
-D_{KL}(P||Q) = \sum_{i}P(i)log\frac{P(i)}{Q(i)}\space \text 이산확률변수
-$$
-
-$$
-D_{KL}(P||Q) = \int_{-∞}^∞ p(x)log\frac{p(x)}{q(x)} \space \text 연속확률변수
-$$
+  <img src="https://user-images.githubusercontent.com/58063806/143267090-814569de-60d7-476e-ae8d-79fc5c128ce1.png" width=35% />
 
 - 원래 분포가 가지는 엔트로피 H(P)와 P 대신 Q를 사용할 때의 교차 엔트로피(cross entropy) H(P, Q)의 차이
-  $$
-  D_{KL}(P||Q) = H(P, Q) - H(P)
-  $$
 
-  $$
-  D_{KL}(P||Q) = -\sum_{x}p(x)log\space q(x) + \sum_{x}p(x)log\space p(x)
-  $$
+<img src="https://user-images.githubusercontent.com/58063806/143267387-7b2473c0-0d12-482d-bc6f-ba03b4f60d19.png" width=40% />
 
 #### E-M algorithm (기댓값-최대화 알고리즘)
 
