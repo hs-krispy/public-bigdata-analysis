@@ -37,39 +37,56 @@
 
 #### LLE
 
-### K-L divergence (쿨백-라이블러 발산)
+### cluster
 
-- 두 확률 분포를 비교
-- 확률분포 P가 있을 때, 샘플링 과정에서 그 분포를 근사적으로 표현하는 확률분포 Q를 P 대신 사용할 경우 엔트로피 변화를 의미 
+#### K-means
 
-$$
-D_{KL}(P||Q) = \sum_{i}P(i)log\frac{P(i)}{Q(i)}\space \text 이산확률변수
-$$
+#### GMM
 
-$$
-D_{KL}(P||Q) = \int_{-∞}^∞ p(x)log\frac{p(x)}{q(x)} \space \text 연속확률변수
-$$
+**E-M algorithm (기댓값-최대화 알고리즘)**
 
-- 원래 분포가 가지는 엔트로피 H(P)와 P 대신 Q를 사용할 때의 교차 엔트로피(cross entropy) H(P, Q)의 차이
-  $$
-  D_{KL}(P||Q) = H(P, Q) - H(P)
-  $$
+- 잠재 변수가 있는 상태에서 최대 가능도 추정을 수행하는 접근 방식
 
-  $$
-  D_{KL}(P||Q) = -\sum_{x}p(x)log\space q(x) + \sum_{x}p(x)log\space p(x)
-  $$
+- **Expectation step (E - step)** 
 
-### E-M algorithm (기댓값-최대화 알고리즘)
+  - **모수들이 주어졌을 때, 샘플들이 각 클러스터에 속할 확률을 계산하고 이에 따라 클러스터에 할당**하는 과정
 
-- 잠재 변수 모형은 관측되지 않은 변수(잠재 변수)와 관련된 일반적인 확률 분포 형식을 알고 있는 경우, 데이터 집합에서 이러한 결측값을 예측하는 데에 사용
-- 잠재 변수의 관측 가능한 표본을 사용하여 학습에 대해 관측할 수 없는 표본의 값을 예측
-- Expectation step (E - step) 
+  - > **parameters**
+    >
+    > - ϕ(phi) : 클러스터 weight (추정확률, **prior**)
+    >
+    > - μ, Σ : 평균과 분산 (공분산 행렬)
+    > - 처음에는 랜덤하게 초기화된 모수들이 주어짐 
+    > - sklearn에서는 kmeans를 default로 mean과 weight를 초기화  
 
-  - 데이터 세트의 관찰된 데이터를 사용하여 누락된 데이터의 값을 추정하거나 추측
-  - 이 단계 후에는 결측값이 없는 완전한 데이터를 얻을 수 있음
-- Maximization step (M - step)
+  - 샘플 x<sup>(i)</sup>가 주어진 모수들로 구성되는 확률 분포(클러스터, j)에 속할 가능도(Likelihood, PDF 값)와 각 클러스터에 대한 사전확률(prior)을 이용, 특정 클러스터에 속할 때 값을 각 클러스터에 속할 때 값의 합으로 나누면 각 클러스터에 속할 확률이 됨
 
-  - E - step에서 준비된 완전한 데이터를 사용하여 파라미터를 업데이트
+<img src="https://user-images.githubusercontent.com/58063806/144253152-2810a04c-ec61-428d-82fe-cd22e1bdcb45.png" width=60% />
+
+- **Maximization step (M - step)**
+
+  - E - step에서 할당된 샘플들을 바탕으로 **모수들을 업데이트**
+
+  - ϕ는 각 클러스터 별로 샘플들이 속할 확률의 평균치
+
+  - MLE (Maximum likelihood estimation)
+
+    - 관찰된 데이터를 생성할 가능성을 최대화하는 모수를 추정
+
+    - 데이터를 관찰할 총 확률, 모든 관찰된 데이터의 공통 확률 분포 (각 데이터는 독립적으로 생성된다고 가정)
+
+    - 모든 데이터(x)에 대해 정규분포의 PDF 값을 모두 곱한 식의 결과가 최대가 되는  μ, Σ 값을 추정
+
+    - > 자연로그를 취해서 합의 형태로 변환 후 미분값이 0이 되는 μ, Σ의 log likelihood 추정
+
+    - EX) x : 9, 9.5, 11
+
+<img src="https://user-images.githubusercontent.com/58063806/144256775-c78e6e3f-adc5-44ce-ac2d-c4ae4f335a2c.png" width=70% />
+
+> 다변량 정규분포의 PDF
+>
+> <img src="https://user-images.githubusercontent.com/58063806/144257886-d91c7354-1647-4fa9-a5a1-5a0e074fcab4.png" width=60% />
+
 - 장점
 
   - M - step에 대한 해결책은 닫힌 형태로 존재하는 경우가 많음
@@ -78,11 +95,29 @@ $$
 
   - 수렴이 느림
   - 로컬 최적값으로만 수렴
-  - 전진 확률과 후진 확률을 모두 고려
+    - 전진 확률과 후진 확률을 모두 고려			
+  - 클러스터 당 데이터가 충분하지 않으면 공분산 행렬을 추정하기가 어려워지며 알고리즘이 수렴하지 않고 발산하게됨 
 
-### cluster
+[MLE (Maximum likelihood estimation) 참고](https://towardsdatascience.com/probability-concepts-explained-maximum-likelihood-estimation-c7b4342fdbb1)
 
-- K-means
-- GMM
+[EM & Gaussian mixture 참고-1](https://angeloyeo.github.io/2021/02/08/GMM_and_EM.html)
+
+[EM & Gaussian mixture 참고-2](https://towardsdatascience.com/gaussian-mixture-models-explained-6986aaf5a95)
+
+[Gaussian mixture 참고](https://scikit-learn.org/stable/modules/mixture.html)
+
 - Spectral Clustering
 
+### K-L divergence (쿨백-라이블러 발산)
+
+- 두 확률 분포를 비교
+- 확률분포 P가 있을 때, 샘플링 과정에서 그 분포를 근사적으로 표현하는 확률분포 Q를 P 대신 사용할 경우 엔트로피 변화를 의미 
+- 이산확률변수와 연속확률변수의 경우
+
+<img src="https://user-images.githubusercontent.com/58063806/144260970-13116f15-e32b-4515-a91e-f1c911872bf3.png" width=25% />
+
+- 원래 분포가 가지는 엔트로피 H(P)와 P 대신 Q를 사용할 때의 교차 엔트로피(cross entropy) H(P, Q)의 차이
+
+<img src="https://user-images.githubusercontent.com/58063806/144261395-0f2f46ca-dc4f-4ef2-9dbf-042298efe7c4.png" width=30% />
+
+[출처](https://ko.wikipedia.org/wiki/%EC%BF%A8%EB%B0%B1-%EB%9D%BC%EC%9D%B4%EB%B8%94%EB%9F%AC_%EB%B0%9C%EC%82%B0)
