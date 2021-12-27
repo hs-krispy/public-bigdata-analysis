@@ -2,10 +2,15 @@
 
 ### Feature extraction
 
-- Autoencoder
 - Convolutional Autoencoder
-- Variational Autoencoder
-- <u>Convolutional Variational Autoencoder</u> ???
+
+- canny edge detection
+  - otsu thresholding
+    - grayscale image에서 background와 foreground 이미지를 최적으로 구분(이진화)할 수 있도록 임계값을 구하는 방법 
+    - background와 foreground 사이의 분산비를 최대로
+    - background와 foreground 내부의 분산은 최소로 
+  - otsu로 구한 optimal threshold 값을 canny의 min threshold로 사용 max는 255로
+- hog
 
 ### manifold
 
@@ -106,7 +111,23 @@
 
 [Gaussian mixture 참고](https://scikit-learn.org/stable/modules/mixture.html)
 
-- Spectral Clustering
+#### Spectral Clustering
+
+- 그래프 이론을 기반으로 한 클러스터링 방식으로 노드를 연결하는 edge를 통해 클러스터를 식별 
+
+**고유값과 고유 벡터**
+
+- 고유 벡터 (eigenvector) : 선형 변환이 일어난 후에도 방향이 변하지 않는 영벡터(모든 값이 0인 벡터)가 아닌 벡터
+- 고유값 (eigenvalue) : 고유 벡터의 길이가 변하는 배수로 고유벡터에 대응하는 값 
+- 행렬 A에 대해 **영벡터가 아닌 x**와 Ax = lambda x와 같은 **스칼라 lambda**가 있는 경우 x는 행렬 A의 고유값 lambda에 대한 고유 벡터라고 할 수 있음
+  - lambda로 구성되는 다항식이 몇차식인지에 따라 최대 몇개의 고유 벡터가 존재하는 지 정해짐 (1차식 - 최대 1개, 2차식 - 최대 2개 ...)
+- 고유 벡터는 조건을 만족하는 벡터들 중에서 어느 벡터를 사용해도 무방하지만 **벡터의 크기를 1로 정규화한 단위벡터를 사용하는 것이 일반적**  
+
+**라플라시안 행렬 (Laplacian matrix)**
+
+- 차수행렬에서 인접행렬을 뺀 것으로 **대각선은 각 노드의 차수, 나머지는 음의 edge weight**를 의미 
+
+
 
 ### K-L divergence (쿨백-라이블러 발산)
 
@@ -121,3 +142,51 @@
 <img src="https://user-images.githubusercontent.com/58063806/144261395-0f2f46ca-dc4f-4ef2-9dbf-042298efe7c4.png" width=30% />
 
 [출처](https://ko.wikipedia.org/wiki/%EC%BF%A8%EB%B0%B1-%EB%9D%BC%EC%9D%B4%EB%B8%94%EB%9F%AC_%EB%B0%9C%EC%82%B0)
+
+### Semi-supervised learning 
+
+#### Label Propagation
+
+- 그래프 기반 반지도 학습 알고리즘
+
+  - **Smoothness Assumption (평활도 가정)**  : 두 데이터 포인트가 서로 가까우면 동일한 레이블을 가질가능성이 높음 
+  - **Cluster Assumption (클러스터 가정)** :  두 데이터 포인타가 동일한 클러스터에 있는 경우 동일한 레이블을  가질 가능성이 높음
+
+- 고차원 데이터를 처리할 경우에는 주의
+
+- 모든 데이터 포인트가 완전히 연결된 그래프를 작성
+
+- 노드간의 유사성을 정의하기 위해 가중치 부여 (W, edge)
+
+  - K-nearest neighbors : 두 노드가 연결되어 있으면 1, 아니면 0
+
+  - Gaussian kernels : <img src="https://user-images.githubusercontent.com/58063806/147429457-33da8e4e-8dd8-4ae6-a161-9916c8ce7385.png" width=60% />
+
+    - x<sub>id</sub> : x<sub>i</sub>의 d번째 element
+
+    [출처]()
+
+- Transition matrix : <img src="https://user-images.githubusercontent.com/58063806/147431314-e4b97267-b0e1-474e-af2d-f819d7de6730.png" width=25% />
+
+- Laplacian : D - W
+
+  - D : <img src="https://user-images.githubusercontent.com/58063806/147429717-8b214ec3-7c14-44e1-97c3-56c7432a94bc.png" width=15% />
+
+  - normalized L : <img src="https://user-images.githubusercontent.com/58063806/147429766-edea51d1-26d4-47fd-ad9f-0e0437c5754b.png" width=15% />
+
+    > Label spreading normalized L : <img src="https://user-images.githubusercontent.com/58063806/147429863-0c53973d-fd70-4b03-837c-c83d213fa5e8.png" width=25% />
+
+1. transition matrix와 y_hat 초기화
+2. |y_hat<sup>(t)</sup> - y_hat<sup>(t - 1)</sup>| < delta를 만족할 때까지 update
+   1. y_hat<sup>(t)</sup> = T · y_hat<sup>(t - 1)</sup>
+   2. normalizing y_hat<sup>(t)</sup>
+   3. 라벨이 주어진 데이터 포인트에 대해서 라벨값 유지 y_hat<sup>(t)</sup><sub>L</sub> <= y<sub>L</sub> (label)
+
+[참고자료](https://proceedings.neurips.cc/paper/2013/file/3a835d3215755c435ef4fe9965a3f2a0-Paper.pdf)
+
+[참고자료 - 2](https://pages.ucsd.edu/~ztu/publication/iccv13_dlp.pdf)
+
+[참고자료 - 3](https://ktmai.github.io/2019-12/label-propagation/)
+
+
+
