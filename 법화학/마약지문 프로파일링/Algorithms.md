@@ -162,9 +162,7 @@
 
   - Gaussian kernels : <img src="https://user-images.githubusercontent.com/58063806/147429457-33da8e4e-8dd8-4ae6-a161-9916c8ce7385.png" width=60% />
 
-    - x<sub>id</sub> : x<sub>i</sub>의 d번째 element
-
-    [출처]()
+    > x<sub>id</sub> : x<sub>i</sub>의 d번째 element
 
 - Transition matrix : <img src="https://user-images.githubusercontent.com/58063806/147431314-e4b97267-b0e1-474e-af2d-f819d7de6730.png" width=25% />
 
