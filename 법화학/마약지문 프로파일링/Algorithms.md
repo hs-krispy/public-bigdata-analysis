@@ -4,17 +4,33 @@
 
 - Convolutional Autoencoder
 
-- canny edge detection
-  - otsu thresholding
-    - grayscale image에서 background와 foreground 이미지를 최적으로 구분(이진화)할 수 있도록 임계값을 구하는 방법 
-    - background와 foreground 사이의 분산비를 최대로
-    - background와 foreground 내부의 분산은 최소로 
-  - otsu로 구한 optimal threshold 값을 canny의 min threshold로 사용 max는 255로
-- hog
+  - SSIM(Structural Similarity Index) loss : 두 이미지 간의 유사도를 측정하는 데 사용
+
+- HOG(Histogram of Oriented Gradients)
+
+  - 이미지의 지역화된 부분에서 기울기 방향의 발생을 계산
+
+  - 이미지를 N x N cell을 기준으로 x, y축의 기울기를 계산 
+
+  - > G<sub>x</sub> : 기준 픽셀 오른쪽 - 왼쪽
+    >
+    > G<sub>y</sub> : 기준 픽셀 위쪽 - 아래쪽
+    >
+    > 총 기울기의 크기 = sqrt(x축^2 + y축^2)
+    >
+    > tan(theta) : G<sub>y</sub> / G<sub>x</sub>
+    >
+    > theta : atan(G<sub>y</sub> / G<sub>x</sub>)
+
+  <img src="https://user-images.githubusercontent.com/58063806/149761773-bd72f6a3-1d80-4ffe-9938-8250d65539d2.png" width=30% />
+
+  - theta 값에 따라 degree 1 ~ 180 버킷 중 알맞은 degree에 기울기의 크기 값 넣음 
+  - orientations 값에 따라 각 셀에 대한 N x 1 행렬 생성
+    - EX) orietntaions : 9, 180 / 20 = 9 ∴ [0, 20, 40, 60, 80, 100, 120, 140, 160] degree (9 X 1 행렬)
+  - 이미지의 기울기는 밝기에 민감하므로 N개의 N x N cell로 구성된 N x N block을 생성하고 정규화
+    - EX) 4개 8 x 8 cell :arrow_forward:16 x 16 block (36 x 1 행렬) 
 
 ### manifold
-
-#### TSNE
 
 #### UMAP (Uniform Manifold Approximation and Projection)
 
@@ -38,13 +54,9 @@
 
 - [참고문헌 및 이미지 출처](https://pair-code.github.io/understanding-umap/)
 
-#### ISOMAP
 
-#### LLE
 
 ### cluster
-
-#### K-means
 
 #### GMM
 
@@ -127,7 +139,40 @@
 
 - 차수행렬에서 인접행렬을 뺀 것으로 **대각선은 각 노드의 차수, 나머지는 음의 edge weight**를 의미 
 
+#### Cluster-based Similarity Partitioning Algorithm (CSPA)
 
+<img src="https://user-images.githubusercontent.com/58063806/147997113-52a80972-7f6f-448a-a7aa-f06667ca6eeb.png" width=15%/>
+
+> S: Similarity matrix 
+>
+> H: Hyper Edge
+>
+> r: n_iteration
+
+**EX)**
+
+n_iter = 3
+
+**Clustering result**
+
+|      | iter - 1 | iter - 2 | iter - 3 |
+| :--: | :------: | :------: | :------: |
+|  x1  |    1     |    1     |    1     |
+|  x2  |    1     |    2     |    1     |
+|  x3  |    2     |    2     |    2     |
+|  x4  |    3     |    3     |    2     |
+
+**HyperEdge** 
+
+|      | H<sub>(1)</sub> |      |      | H<sub>(2)</sub> |      |      | H<sub>(3)</sub> |      |
+| ---- | --------------- | ---- | ---- | --------------- | ---- | ---- | --------------- | ---- |
+|      | h1              | h2   | h3   | h4              | h5   | h6   | h7              | h8   |
+| x1   | 1               | 0    | 0    | 1               | 0    | 0    | 1               | 0    |
+| x2   | 1               | 0    | 0    | 0               | 1    | 0    | 1               | 0    |
+| x3   | 0               | 1    | 0    | 0               | 1    | 0    | 0               | 1    |
+| x4   | 0               | 0    | 1    | 0               | 0    | 1    | 0               | 1    |
+
+[참고](http://strehl.com/diss/node80.html)
 
 ### K-L divergence (쿨백-라이블러 발산)
 
@@ -150,7 +195,7 @@
 - 그래프 기반 반지도 학습 알고리즘
 
   - **Smoothness Assumption (평활도 가정)**  : 두 데이터 포인트가 서로 가까우면 동일한 레이블을 가질가능성이 높음 
-  - **Cluster Assumption (클러스터 가정)** :  두 데이터 포인타가 동일한 클러스터에 있는 경우 동일한 레이블을  가질 가능성이 높음
+  - **Cluster Assumption (클러스터 가정)** :  두 데이터 포인트가 동일한 클러스터에 있는 경우 동일한 레이블을  가질 가능성이 높음
 
 - 고차원 데이터를 처리할 경우에는 주의
 
